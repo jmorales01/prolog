@@ -1,0 +1,9 @@
+version: '3'
+services:
+  swipl:
+    image: swipl:latest
+    #container_name: my_prolog_container
+    volumes:
+      - ./src:/root/prolog_code
+    command: ["swipl"]
+    tty: true

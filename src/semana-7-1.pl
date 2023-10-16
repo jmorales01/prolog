@@ -1,17 +1,24 @@
-ensamblaje(bicicleta,[rueda_delantera,cuadro,rueda_tracera]).
-ensamblaje(rueda_delantera,[llanta,radios,eje]).
-ensamblaje(cuadro,[manejar,sillin,traccion]).
-ensamblaje(traccion,[eje,platos,pedales,cadena]).
-ensamblaje(rueda_tracera,[llanta,radios,eje,pinones]).
+% ##### ECHOS #####
 
-
-pieza_basica(X) :- ensamblaje(traccion,X).
-toda(Z,Y,X,A,B) :- ensamblaje(bicicleta,Z), ensamblaje(rueda_delantera,Y),
-    ensamblaje(cuadro,X), ensamblaje(traccion,A), ensamblaje(rueda_tracera,B).
+ensamblaje('bicicleta', ['rueda delantera', 'cuadro', 'rueda trasera']).
+ensamblaje('rueda delantera', ['llanta', 'radios', 'eje']).
+ensamblaje('cuadro', ['manillar', 'sillín', 'tracción']).
+ensamblaje('tracción', ['eje', 'platos', 'pedales', 'cadena']).
+ensamblaje('rueda trasera', ['llanta', 'radios', 'eje', 'piñones']).
 
 
 % ##### REGLAS #####
 
-ensamblaje(rueda_delantera, ComponentesDelantera), ensamblaje(rueda_tracera, ComponentesTrasera), list_intersection(ComponentesDelantera, ComponentesTrasera, ComponentesComunes).
+% Componentes comunes entre la rueda delantera y trasera
+componentes_comunes_ruedas(ComponentesComunes) :-
+    ensamblaje('rueda delantera', ComponentesDelantera),
+    ensamblaje('rueda trasera', ComponentesTrasera),
+    intersection(ComponentesDelantera, ComponentesTrasera, ComponentesComunes).
+    
+% Regla para listar el contenido del sillín de la bicicleta
+listar_contenido_sillin(Contenido) :-
+    ensamblaje('cuadro', ComponentesCuadro),
+    member('sillín', ComponentesCuadro),
+    ensamblaje('sillín', ComponentesSillin),
+    append(ComponentesCuadro, ComponentesSillin, Contenido).
 
-ensamblaje(sillin, [luces | OtrosComponentes]).

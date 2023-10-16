@@ -1,5 +1,11 @@
 % ##### ECHOS #####
 
+% Directivas discontiguous para prevenir advertencias
+:- discontiguous iestp/2.
+:- discontiguous carrera/2.
+:- discontiguous distrito/2.
+:- discontiguous iestp_en_zona/2.
+
 % Zonas
 zona('Lima Centro', 'Lima Este', 'Lima Norte', 'Lima Sur').
 
@@ -9,8 +15,8 @@ distrito('Lima Centro', ['Cercado de Lima', 'La Victoria', 'San Miguel', 'Pueblo
 
 % IESTP y Carreras en Lima Centro
 iestp('Cercado de Lima', ['Argentina', 'Diseño y Comunicación']).
-carrera('Argentina', ['Administración de Empresas', 'Computación e Informática y Contabilidad']).
-carrera('Diseño y Comunicación', ['Comunicación Audiovisual', 'Diseño de Interiores', 'Diseño de Modas y Diseño Publicitario']).
+carrera('Argentina', ['Administración de Empresas', 'Computación e Informática', 'Contabilidad']).
+carrera('Diseño y Comunicación', ['Comunicación Audiovisual', 'Diseño de Interiores', 'Diseño de Modas', 'Diseño Publicitario']).
 
 iestp('La Victoria', ['Arturo Sabroso Montoya', 'José Pardo']).
 carrera('Arturo Sabroso Montoya', ['Computación e Informática', 'Contabilidad', 'Enfermería Técnica', 'Prótesis Dental', 'Secretariado Ejecutivo']).
@@ -21,7 +27,6 @@ carrera('María Rosario Aráoz Pinto', ['Administración de Empresas', 'Computac
 
 iestp('Pueblo Libre', ['Naciones Unidas']).
 carrera('Naciones Unidas', ['Cosmética Dermatológica']).
-
 
 % Distritos en Lima Este
 distrito('Lima Este', ['Ate', 'Cieneguilla', 'San Juan de Lurigancho', 'Chaclacayo', 'Lurigancho']).
@@ -74,43 +79,31 @@ carrera('San Francisco de Asís', ['Contabilidad', 'Electrotecnia Industrial']).
 
 % ##### REGLAS #####
 
-% Regla para encontrar los IESTP de la zona de Centro de Lima
-buscar_iestp_de_una_zona(Zona, IESTP) :- distrito(Zona, Distritos), iestp(Distrito, IESTP), member(Distrito, Distritos).
-
-
-% Regla para contar IESTP que dictan "Computación e Informática" en Cercado de Lima y Lima Este
-contar_iestp_computacion_informatica(Zona, Cantidad) :-
+% Regla para encontrar los IESTP de la zona_X
+iestp_en_zona(Zona, IESTPs) :-
     distrito(Zona, Distritos),
-    findall(IESTP, (member(Distrito, Distritos), iestp(Distrito, IESTP), carrera(IESTP, Carreras), member('Computación e Informática', Carreras)), IESTPs),
-    length(IESTPs, Cantidad).
+    findall(IESTP, (member(Distrito, Distritos), iestp(Distrito, IESTP)), IESTPs).
 
+% Regla para encontrar IESTP que dictan una carrera específica
+iestp_que_dicta_carrera(Carrera, IESTPs) :-
+    findall(IESTP, (iestp(IESTP, Carreras), member(Carrera, Carreras)), IESTPs).
 
 % Regla para verificar si un IESTP pertenece a una zona específica
-iestp_pertenece_a_zona(IESTP, Zona) :- distrito(Zona, Distrito), iestp(Distrito, IESTP).
+iestp_en_zona(IESTP, Zona) :-
+    distrito(Zona, Distritos),
+    iestp(IESTP, _),
+    member(Distrito, Distritos),
+    iestp(Distrito, IESTPs),
+    member(IESTP, IESTPs).
 
+% Regla para encontrar las carreras en común entre varios IESTP
+carreras_comunes(IESTPs, CarrerasComunes) :-
+    findall(Carrera, (member(IESTP, IESTPs), carrera(IESTP, Carreras), member(Carrera, Carreras)), CarrerasComunes).
 
-% Regla para encontrar las carreras que son dictadas en común por tres IESTP
-carreras_en_comun(IESTP1, IESTP2, IESTP3, Carreras) :-
-    iestp(IESTP1, Carreras1),
-    iestp(IESTP2, Carreras2),
-    iestp(IESTP3, Carreras3),
-    list_intersection(Carreras1, Carreras2, Temp),
-    list_intersection(Temp, Carreras3, Carreras).
-
-% Regla para obtener la intersección de dos listas
-list_intersection([], _, []).
-list_intersection([X|Xs], Ys, [X|Zs]) :- member(X, Ys), list_intersection(Xs, Ys, Zs).
-list_intersection([X|Xs], Ys, Zs) :- \+ member(X, Ys), list_intersection(Xs, Ys, Zs).
-
-
-% Regla para encontrar IESTP que dictan las mismas carreras profesionales
-iestp_mismas_carreras(IESTP1, IESTP2) :-
-    iestp(IESTP1, Carreras1),
-    iestp(IESTP2, Carreras2),
-    permutacion(Carreras1, Carreras2), IESTP1 \= IESTP2.
-
-% Regla para verificar si dos listas son permutaciones una de la otra
-permutacion(Xs, Ys) :- msort(Xs, Sorted), msort(Ys, Sorted).
+% Regla para encontrar IESTP que ofrezcan las mismas carreras
+iestp_con_mismas_carreras(Carreras, IESTP) :-
+    iestp(IESTP, CarrerasIESTP),
+    subset(Carreras, CarrerasIESTP).
 
 
 

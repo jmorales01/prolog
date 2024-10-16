@@ -53,22 +53,17 @@ precio(vegetariano, 135).
 % ##### REGLAS #####
 
 % Contar ingredientes de un paneton
-paneton(vegano, Ingredientes), length(Ingredientes, CantidadIngredientes).
+cantidad_ingredientes(Paneton,Cantidad) :- paneton(Paneton, Ingredientes), length(Ingredientes, Cantidad).
 
-% Agregar pasas húngaras a la lista de ingredientes del panetón artesanal
-agregar_pasas_hungaras(PanetonSinPasas, PanetonConPasas) :-
-    PanetonSinPasas = [otros_ingredientes],
-    PasasHungaras = ['pasas_húngaras'],
-    append(PanetonSinPasas, PasasHungaras, PanetonConPasas).
 
-% Calcular el gasto total de Matilde
-calcular_gasto(Matilde, GastoTotal) :-
-    Matilde = [2*vegano, 3*clasico, 1*vegetariano],
-    sumar_gasto(Matilde, GastoTotal).
+% Agregar ingredientes a la lista de un panetón.
+agregar_ingrediente(Paneton,Listar) :-
+    paneton(Paneton, Ingredientes),
+    append(Ingredientes, ['100 gr de pasas húngaras'], Listar).
 
-% Sumar los gastos individuales
-sumar_gasto([], 0).
-sumar_gasto([Tipo*Cantidad | Resto], GastoTotal) :-
-    precio(Tipo, Precio),
-    sumar_gasto(Resto, GastoParcial),
-    GastoTotal is Precio * Cantidad + GastoParcial.
+
+% Calcular el gasto total de la compra
+calcular_gasto_compra(Total) :- Total is (2 * 150) + (1 * 135) + (3 * 45).
+
+
+
